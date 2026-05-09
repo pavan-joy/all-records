@@ -1,0 +1,17 @@
+# Production compose — Linux: network_mode host lets the container use the host network stack (MongoDB at 127.0.0.1, SMTP, etc.).
+# Note: Docker Desktop on Windows/Mac does not support Linux host networking — deploy on Linux VMs / bare metal.
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: it-asset-portal:latest
+    network_mode: host
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Override when needed (host listens on PORT)
+      HOSTNAME: 0.0.0.0
+      PORT: ${PORT:-3000}

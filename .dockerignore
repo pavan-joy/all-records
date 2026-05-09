@@ -1,0 +1,18 @@
+# dependencies & build output
+node_modules
+.next
+dist
+out
+
+# env & tooling (secrets via compose env_file at runtime — do not bake .env into the image)
+.env
+.env.*
+!.env.example
+
+# misc
+.git
+.gitignore
+*.md
+.vscode
+.cursor
+coverage

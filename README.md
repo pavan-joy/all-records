@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# IT Asset & Subscription Management Portal
 
-## Getting Started
+Secure admin-only web app for internal IT teams to manage:
 
-First, run the development server:
+- IT subscriptions
+- Vendors
+- Server inventory
+- CSV import/export workflows
+- Admin user access
+
+## Tech Stack
+
+- Next.js (App Router) + TypeScript
+- Tailwind CSS
+- MongoDB (local) + Mongoose
+- NextAuth (credentials login)
+- bcryptjs
+- papaparse
+- zod
+
+## Setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Start local MongoDB.
+
+3. Open MongoDB Compass and connect:
+
+```text
+mongodb://127.0.0.1:27017
+```
+
+4. Database:
+
+```text
+it_subscription_management
+```
+
+5. Create `.env`:
+
+```env
+MONGODB_URI="mongodb://127.0.0.1:27017/it_subscription_management"
+NEXTAUTH_SECRET="change-this-secret"
+NEXTAUTH_URL="http://localhost:3000"
+```
+
+6. Run seed admin:
+
+```bash
+npm run seed:admin
+```
+
+7. Start project:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+8. Login:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+admin@example.com
+Admin@12345
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts
 
-## Learn More
+- `npm run dev` - start local server
+- `npm run build` - production build
+- `npm run start` - start production server
+- `npm run lint` - lint code
+- `npm run seed:admin` - seed default SUPER_ADMIN
 
-To learn more about Next.js, take a look at the following resources:
+## Security Notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- No public registration
+- Passwords stored as bcrypt hashes
+- All dashboard routes are protected
+- API routes enforce authenticated admin access
+- `SUPER_ADMIN` required for admin user creation/deletion
+- Password hashes are never returned in API responses

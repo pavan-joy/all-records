@@ -27,6 +27,7 @@ type AdminUser = {
   email: string;
   role: "SUPER_ADMIN" | "ADMIN" | "READ_ONLY";
   status: "Active" | "Inactive";
+  twoFactorEnabled?: boolean;
 };
 
 const emptyForm: {
@@ -311,6 +312,19 @@ export default function AdminUsersPage() {
             { key: "email", label: "Email" },
             { key: "role", label: "Role", render: (row) => <StatusBadge status={row.role} /> },
             { key: "status", label: "Status", render: (row) => <StatusBadge status={row.status} /> },
+            {
+              key: "twoFactorEnabled",
+              label: "2FA",
+              render: (row) => (
+                <span className="text-xs font-medium">
+                  {row.twoFactorEnabled ? (
+                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-900">On</span>
+                  ) : (
+                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-slate-600">Off</span>
+                  )}
+                </span>
+              ),
+            },
             {
               key: "_id",
               label: "Actions",

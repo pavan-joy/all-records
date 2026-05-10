@@ -10,7 +10,12 @@ export async function GET() {
   if (auth.error) return auth.error;
 
   await connectToDatabase();
-  const users = await AdminUser.find({}, { passwordHash: 0 }).sort({ createdAt: -1 }).lean();
+  const users = await AdminUser.find(
+    {},
+    { passwordHash: 0, twoFactorSecret: 0, twoFactorPendingSecret: 0 },
+  )
+    .sort({ createdAt: -1 })
+    .lean();
   return NextResponse.json({ data: users });
 }
 

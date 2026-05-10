@@ -9,6 +9,9 @@ export interface IAdminUser {
   passwordHash: string;
   role: AdminRole;
   status: AdminStatus;
+  twoFactorEnabled: boolean;
+  twoFactorSecret?: string;
+  twoFactorPendingSecret?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -20,6 +23,9 @@ const adminUserSchema = new Schema<IAdminUser>(
     passwordHash: { type: String, required: true, select: false },
     role: { type: String, enum: ["SUPER_ADMIN", "ADMIN", "READ_ONLY"], default: "ADMIN", required: true },
     status: { type: String, enum: ["Active", "Inactive"], default: "Active", required: true },
+    twoFactorEnabled: { type: Boolean, default: false },
+    twoFactorSecret: { type: String, select: false },
+    twoFactorPendingSecret: { type: String, select: false },
   },
   { timestamps: true, collection: "adminusers" },
 );

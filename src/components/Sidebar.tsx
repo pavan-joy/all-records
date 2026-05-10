@@ -10,6 +10,7 @@ import {
   Database,
   FileSpreadsheet,
   LayoutDashboard,
+  LockKeyhole,
   LogOut,
   Phone,
   Server,
@@ -56,9 +57,10 @@ function AdminUsersDropdown({ pathname }: { pathname: string }) {
     setOpen(false);
   }, [pathname]);
 
-  const adminActive = pathname === "/admin-users" || pathname.startsWith("/admin-users/");
+  const adminUsersRoot = pathname === "/admin-users";
+  const securityActive = pathname.startsWith("/admin-users/security");
   const platformActive = pathname === "/platform-settings" || pathname.startsWith("/platform-settings/");
-  const triggerActive = adminActive || platformActive;
+  const triggerActive = adminUsersRoot || securityActive || platformActive;
 
   const triggerClass = `group inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium whitespace-nowrap transition-all duration-200 ${
     triggerActive
@@ -98,11 +100,20 @@ function AdminUsersDropdown({ pathname }: { pathname: string }) {
           <Link
             href="/admin-users"
             role="menuitem"
-            className={`block w-full ${itemClass(adminActive)}`}
+            className={`block w-full ${itemClass(adminUsersRoot)}`}
             onClick={() => setOpen(false)}
           >
             <ShieldCheck className="h-4 w-4 shrink-0 text-amber-400/90" aria-hidden />
             Manage users
+          </Link>
+          <Link
+            href="/admin-users/security"
+            role="menuitem"
+            className={`block w-full ${itemClass(securityActive)}`}
+            onClick={() => setOpen(false)}
+          >
+            <LockKeyhole className="h-4 w-4 shrink-0 text-amber-400/90" aria-hidden />
+            Security
           </Link>
           <Link
             href="/platform-settings"

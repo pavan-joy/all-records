@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import AdminUser from "@/models/AdminUser";
 import { connectToDatabase } from "@/lib/mongodb";
+import { verifyTotpToken } from "@/lib/totp";
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
@@ -14,6 +15,7 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        totp: { label: "Authenticator code", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials.password) {
@@ -24,12 +26,22 @@ export const authOptions: NextAuthOptions = {
         const user = await AdminUser.findOne({
           email: credentials.email.toLowerCase(),
           status: "Active",
-        }).select("+passwordHash");
+        }).select("+passwordHash +twoFactorSecret");
 
         if (!user) return null;
 
         const isValid = await compare(credentials.password, user.passwordHash);
         if (!isValid) return null;
+
+        const secret = user.twoFactorSecret ? String(user.twoFactorSecret) : "";
+        const needsTotp = Boolean(user.twoFactorEnabled && secret);
+        if (needsTotp) {
+          const totpCode =
+            typeof credentials.totp === "string" ? credentials.totp.trim().replace(/\s/g, "") : "";
+          if (!totpCode || !verifyTotpToken(secret, totpCode)) {
+            return null;
+          }
+        }
 
         return {
           id: user._id.toString(),

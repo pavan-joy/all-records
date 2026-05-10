@@ -11,6 +11,8 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [totpCode, setTotpCode] = useState("");
+  const [loginPhase, setLoginPhase] = useState<"password" | "totp">("password");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -18,16 +20,58 @@ export default function LoginPage() {
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
-    const response = await signIn("credentials", { email, password, redirect: false });
-    setLoading(false);
 
-    if (response?.error) {
-      toast.error("Invalid credentials");
-      return;
+    try {
+      if (loginPhase === "password") {
+        const precheck = await fetch("/api/auth/login-precheck", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        const payload = await precheck.json().catch(() => ({}));
+        if (!precheck.ok || !payload.ok) {
+          toast.error(typeof payload.message === "string" ? payload.message : "Invalid credentials");
+          return;
+        }
+
+        if (payload.requiresTwoFactor) {
+          setLoginPhase("totp");
+          setTotpCode("");
+          toast.success("Enter the 6-digit code from your authenticator app.");
+          return;
+        }
+
+        const response = await signIn("credentials", { email, password, redirect: false });
+        if (response?.error) {
+          toast.error("Invalid credentials");
+          return;
+        }
+        toast.success("Login successful");
+        router.push("/dashboard");
+        return;
+      }
+
+      const normalizedTotp = totpCode.trim().replace(/\s/g, "");
+      if (!/^\d{6}$/.test(normalizedTotp)) {
+        toast.error("Enter the 6-digit authenticator code.");
+        return;
+      }
+
+      const response = await signIn("credentials", {
+        email,
+        password,
+        totp: normalizedTotp,
+        redirect: false,
+      });
+      if (response?.error) {
+        toast.error("Invalid credentials or authenticator code.");
+        return;
+      }
+      toast.success("Login successful");
+      router.push("/dashboard");
+    } finally {
+      setLoading(false);
     }
-
-    toast.success("Login successful");
-    router.push("/dashboard");
   };
 
   const inputClass = `${styles.inputLine} w-full rounded-xl border border-slate-200/90 bg-white px-4 py-3.5 text-sm text-slate-800 placeholder:text-slate-400`;
@@ -105,65 +149,104 @@ export default function LoginPage() {
                 </div>
 
                 <form onSubmit={onSubmit} className="mt-8 space-y-5">
-                  <div className={styles.inputWrap}>
-                    <label htmlFor="login-email" className="sr-only">
-                      User name
-                    </label>
-                    <input
-                      id="login-email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className={inputClass}
-                      type="email"
-                      autoComplete="username"
-                      placeholder="User Name"
-                      required
-                    />
-                  </div>
+                  {loginPhase === "password" ? (
+                    <>
+                      <div className={styles.inputWrap}>
+                        <label htmlFor="login-email" className="sr-only">
+                          User name
+                        </label>
+                        <input
+                          id="login-email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className={inputClass}
+                          type="email"
+                          autoComplete="username"
+                          placeholder="User Name"
+                          required
+                        />
+                      </div>
 
-                  <div className={`${styles.inputWrap} space-y-2`}>
-                    <label htmlFor="login-password" className="sr-only">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        id="login-password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className={`${inputClass} pr-[5.5rem]`}
-                        type={showPassword ? "text" : "password"}
-                        autoComplete="current-password"
-                        placeholder="Password"
-                        required
-                      />
+                      <div className={`${styles.inputWrap} space-y-2`}>
+                        <label htmlFor="login-password" className="sr-only">
+                          Password
+                        </label>
+                        <div className="relative">
+                          <input
+                            id="login-password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className={`${inputClass} pr-[5.5rem]`}
+                            type={showPassword ? "text" : "password"}
+                            autoComplete="current-password"
+                            placeholder="Password"
+                            required
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword((v) => !v)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold uppercase tracking-wide text-blue-600 transition hover:text-blue-800"
+                          >
+                            {showPassword ? "Hide" : "Show"}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+                        <label className="flex cursor-pointer items-center gap-2 text-slate-600 select-none transition hover:text-slate-800">
+                          <input
+                            type="checkbox"
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
+                            className="h-4 w-4 rounded border-slate-300 text-blue-600 transition hover:scale-110 focus:ring-blue-500"
+                          />
+                          Remember me
+                        </label>
+                        <button
+                          type="button"
+                          className={`${styles.linkBlue} text-sm font-medium text-blue-600 hover:underline`}
+                          onClick={() => toast("Contact your administrator to reset your password.")}
+                        >
+                          Forgot Password?
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-center text-sm text-slate-600">
+                        Two-factor authentication is enabled for{" "}
+                        <span className="font-medium text-slate-800">{email}</span>.
+                      </p>
+                      <div className={styles.inputWrap}>
+                        <label htmlFor="login-totp" className="sr-only">
+                          Authenticator code
+                        </label>
+                        <input
+                          id="login-totp"
+                          value={totpCode}
+                          onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                          className={`${inputClass} text-center font-mono text-lg tracking-[0.35em]`}
+                          type="text"
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
+                          placeholder="000000"
+                          autoFocus
+                          required
+                          maxLength={6}
+                        />
+                      </div>
                       <button
                         type="button"
-                        onClick={() => setShowPassword((v) => !v)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold uppercase tracking-wide text-blue-600 transition hover:text-blue-800"
+                        className="w-full text-center text-sm font-medium text-blue-600 underline-offset-2 hover:underline"
+                        onClick={() => {
+                          setLoginPhase("password");
+                          setTotpCode("");
+                        }}
                       >
-                        {showPassword ? "Hide" : "Show"}
+                        ← Back to password
                       </button>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-                    <label className="flex cursor-pointer items-center gap-2 text-slate-600 select-none transition hover:text-slate-800">
-                      <input
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
-                        className="h-4 w-4 rounded border-slate-300 text-blue-600 transition hover:scale-110 focus:ring-blue-500"
-                      />
-                      Remember me
-                    </label>
-                    <button
-                      type="button"
-                      className={`${styles.linkBlue} text-sm font-medium text-blue-600 hover:underline`}
-                      onClick={() => toast("Contact your administrator to reset your password.")}
-                    >
-                      Forgot Password?
-                    </button>
-                  </div>
+                    </>
+                  )}
 
                   <button
                     type="submit"
@@ -176,8 +259,10 @@ export default function LoginPage() {
                           <span className={styles.loader} aria-hidden />
                           Signing in…
                         </>
+                      ) : loginPhase === "password" ? (
+                        "Continue"
                       ) : (
-                        "Sign in"
+                        "Verify & sign in"
                       )}
                     </span>
                   </button>

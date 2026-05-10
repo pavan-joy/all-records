@@ -17,6 +17,15 @@ export const adminPasswordResetSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
+export const totpCodeSchema = z.object({
+  code: z.string().regex(/^\d{6}$/, "Enter the 6-digit code from your authenticator app"),
+});
+
+export const disableTwoFactorSchema = z.object({
+  password: z.string().min(1, "Password is required"),
+  totp: z.string().optional(),
+});
+
 export const vendorSchema = z.object({
   name: z.string().min(2),
   companyName: z.string().optional(),

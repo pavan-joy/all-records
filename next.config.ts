@@ -5,6 +5,15 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "api.qrserver.com",
+        pathname: "/v1/create-qr-code/**",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

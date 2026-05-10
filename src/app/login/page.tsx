@@ -1,12 +1,11 @@
 "use client";
 
-import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import FormPrimaryButton from "@/components/FormPrimaryButton";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import styles from "./login.module.css";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,7 +13,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -31,87 +30,175 @@ export default function LoginPage() {
     router.push("/dashboard");
   };
 
+  const inputClass = `${styles.inputLine} w-full rounded-xl border border-slate-200/90 bg-white px-4 py-3.5 text-sm text-slate-800 placeholder:text-slate-400`;
+
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#eceff7] p-4 md:p-8">
-      <div className="relative w-full max-w-5xl overflow-hidden rounded-[2rem] border border-indigo-100 bg-white shadow-[0_25px_65px_rgba(76,81,191,0.25)]">
-        <div className="grid md:grid-cols-2">
-          <form onSubmit={onSubmit} className="z-10 px-8 py-10 md:px-12 md:py-12">
-            <div className="mb-4 flex items-center gap-3">
-              <Image src="/login-logo.png" alt="Portal logo" width={46} height={46} className="rounded-md" priority />
-              <p className="text-sm font-semibold tracking-wide text-violet-600">IT ASSET PORTAL</p>
-            </div>
-            <h1 className="text-4xl font-bold tracking-tight text-slate-800">Hello!</h1>
-            <p className="mt-1 text-slate-500">Sign in to your account</p>
+    <>
+      <div className={styles.pageBackdrop} aria-hidden>
+        <div className={styles.pageBackdropBase} />
+        <div className={styles.pageBackdropOrbs}>
+          <div className={`${styles.orb} ${styles.orbGold}`} />
+          <div className={`${styles.orb} ${styles.orbSilver}`} />
+          <div className={`${styles.orb} ${styles.orbViolet}`} />
+        </div>
+        <div className={styles.pageBackdropMesh} />
+        <div className={styles.pageBackdropSheen} />
+        <div className={styles.pageBackdropVignette} />
+      </div>
+      <main className="relative z-10 flex min-h-screen items-center justify-center overflow-x-hidden px-4 py-10 md:px-8 md:py-14">
+        <div className={`${styles.outerCard} w-full max-w-[960px] overflow-hidden rounded-[2rem] bg-white/95 shadow-[0_28px_80px_-16px_rgba(2,6,23,0.65)] ring-1 ring-white/10 backdrop-blur-sm`}>
+        <div className="grid md:grid-cols-2 md:min-h-[560px]">
+          {/* Left — welcome */}
+          <section className={`relative flex flex-col justify-center overflow-hidden px-8 py-12 md:px-12 md:py-16 ${styles.welcomePanel}`}>
+            <div className={`${styles.blob} ${styles.blob1}`} aria-hidden />
+            <div className={`${styles.blob} ${styles.blob2}`} aria-hidden />
+            <div className={`${styles.blob} ${styles.blob3}`} aria-hidden />
+            <div className={`${styles.blob} ${styles.blob4}`} aria-hidden />
 
-            <div className="mt-8 space-y-4">
-              <label className="relative block">
-                <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-violet-500" />
-                <input
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  className="w-full rounded-full border border-indigo-100 bg-[#f8f9ff] py-3 pl-11 pr-4 text-sm text-slate-700 shadow-[0_10px_25px_rgba(99,102,241,0.12)] outline-none transition focus:border-violet-300 focus:shadow-[0_12px_28px_rgba(124,58,237,0.2)]"
-                  type="email"
-                  placeholder="E-mail"
-                  required
+            <div className="relative z-[1] mb-6">
+              <div className={styles.brandLogoShellWelcome}>
+                <Image
+                  src="/login-brand-logo.png"
+                  alt=""
+                  width={256}
+                  height={256}
+                  className={styles.brandLogoImgWelcome}
+                  priority
+                  sizes="76px"
                 />
-              </label>
-
-              <label className="relative block">
-                <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-violet-500" />
-                <input
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  className="w-full rounded-full border border-indigo-100 bg-[#f8f9ff] py-3 pl-11 pr-12 text-sm text-slate-700 shadow-[0_10px_25px_rgba(99,102,241,0.12)] outline-none transition focus:border-violet-300 focus:shadow-[0_12px_28px_rgba(124,58,237,0.2)]"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-violet-500 transition hover:bg-violet-100"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </label>
+              </div>
             </div>
 
-            <div className="mt-3 flex items-center justify-between text-xs text-indigo-400">
-              <label className="inline-flex cursor-pointer items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(event) => setRememberMe(event.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-indigo-300 text-violet-600 focus:ring-violet-300"
-                />
-                Remember me
-              </label>
-            </div>
-
-            <FormPrimaryButton
-              variant="pill"
-              disabled={loading}
-              className="mt-6 w-full justify-center py-3 text-sm font-semibold tracking-wide disabled:cursor-not-allowed"
-            >
-              {loading ? "SIGNING IN..." : "SIGN IN"}
-            </FormPrimaryButton>
-
-            <p className="mt-8 text-center text-sm font-semibold tracking-wide text-violet-600">IT ADMINS ONLY</p>
-          </form>
-
-          <div className="relative hidden min-h-[560px] overflow-hidden md:block">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#6d28d9] via-[#4f46e5] to-[#2563eb]" />
-            <div className="absolute -top-24 left-[-5%] h-64 w-[120%] rounded-[50%] bg-white" />
-            <div className="absolute -bottom-20 left-[-15%] h-56 w-[135%] rounded-[55%] bg-white/95" />
-            <div className="absolute right-12 top-1/2 max-w-xs -translate-y-1/2 text-white">
-              <h2 className="text-4xl font-bold">Welcome Back!</h2>
-              <p className="mt-4 text-sm leading-7 text-indigo-100">
-                Access your IT asset, subscription, vendor, and server operations dashboard securely.
+            <div className={`relative z-[1] ${styles.staggerWelcome}`}>
+              <p className="text-3xl font-bold uppercase tracking-[0.15em] text-white drop-shadow-sm md:text-4xl">
+                Welcome
+              </p>
+              <p className="mt-4 text-xs font-semibold uppercase tracking-[0.35em] text-white/95 md:text-sm">
+                IT Asset Portal
+              </p>
+              <p className="mt-8 max-w-md text-sm leading-relaxed text-white/85">
+                Manage subscriptions, vendors, renewals, and server inventory in one secure workspace. Sign in to access
+                dashboards built for IT operations teams.
               </p>
             </div>
-          </div>
+          </section>
+
+          {/* Right — nested white form */}
+          <section className={`relative flex flex-col items-center justify-center px-6 py-10 md:px-10 md:py-14 ${styles.formColumn}`}>
+            <div className={`relative z-[1] w-full max-w-[400px] rounded-2xl bg-white p-8 shadow-[0_20px_50px_-12px_rgba(15,23,42,0.28)] md:p-10 ${styles.formCard}`}>
+              <div className={styles.staggerForm}>
+                <div>
+                  <div className={styles.brandLogoShellForm}>
+                    <Image
+                      src="/login-brand-logo.png"
+                      alt=""
+                      width={256}
+                      height={256}
+                      className={styles.brandLogoImgForm}
+                      sizes="56px"
+                    />
+                  </div>
+                  <h2 className="text-center text-2xl font-bold tracking-tight text-blue-950">Sign in</h2>
+                  <p className="mt-2 text-center text-sm text-slate-500">
+                    Use your admin credentials to access the portal.
+                  </p>
+                </div>
+
+                <form onSubmit={onSubmit} className="mt-8 space-y-5">
+                  <div className={styles.inputWrap}>
+                    <label htmlFor="login-email" className="sr-only">
+                      User name
+                    </label>
+                    <input
+                      id="login-email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={inputClass}
+                      type="email"
+                      autoComplete="username"
+                      placeholder="User Name"
+                      required
+                    />
+                  </div>
+
+                  <div className={`${styles.inputWrap} space-y-2`}>
+                    <label htmlFor="login-password" className="sr-only">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="login-password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className={`${inputClass} pr-[5.5rem]`}
+                        type={showPassword ? "text" : "password"}
+                        autoComplete="current-password"
+                        placeholder="Password"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((v) => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold uppercase tracking-wide text-blue-600 transition hover:text-blue-800"
+                      >
+                        {showPassword ? "Hide" : "Show"}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+                    <label className="flex cursor-pointer items-center gap-2 text-slate-600 select-none transition hover:text-slate-800">
+                      <input
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="h-4 w-4 rounded border-slate-300 text-blue-600 transition hover:scale-110 focus:ring-blue-500"
+                      />
+                      Remember me
+                    </label>
+                    <button
+                      type="button"
+                      className={`${styles.linkBlue} text-sm font-medium text-blue-600 hover:underline`}
+                      onClick={() => toast("Contact your administrator to reset your password.")}
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className={`${styles.btnSignIn} relative z-[1] flex w-full items-center justify-center rounded-xl py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-600/30 disabled:cursor-not-allowed disabled:opacity-60`}
+                  >
+                    <span className="relative z-[2] flex items-center justify-center">
+                      {loading ? (
+                        <>
+                          <span className={styles.loader} aria-hidden />
+                          Signing in…
+                        </>
+                      ) : (
+                        "Sign in"
+                      )}
+                    </span>
+                  </button>
+                </form>
+
+                <p className="mt-8 text-center text-sm text-slate-600">
+                  Don&apos;t have an account?{" "}
+                  <button
+                    type="button"
+                    className={`${styles.linkBlue} font-semibold text-blue-600 hover:underline`}
+                    onClick={() => toast("Administrator accounts are provisioned by IT.")}
+                  >
+                    Sign Up
+                  </button>
+                </p>
+              </div>
+            </div>
+          </section>
         </div>
-      </div>
-    </main>
+        </div>
+      </main>
+    </>
   );
 }

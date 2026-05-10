@@ -1,0 +1,578 @@
+/* Split welcome + nested form — advanced motion */
+
+@keyframes cardReveal {
+  from {
+    opacity: 0;
+    transform: translateY(32px) scale(0.97);
+    filter: blur(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes formReveal {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes blobA {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(12px, -20px) scale(1.06);
+  }
+}
+
+@keyframes blobB {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-18px, 14px) scale(1.08);
+  }
+}
+
+@keyframes blobC {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate(8px, 18px) rotate(8deg) scale(1.04);
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes borderGlow {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+@keyframes shimmerBtn {
+  0% {
+    transform: translateX(-120%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(220%) skewX(-12deg);
+  }
+}
+
+@keyframes spinLoader {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes floatGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 24px 48px -12px rgba(30, 58, 138, 0.35),
+      0 0 0 0 rgba(59, 130, 246, 0.12);
+  }
+  50% {
+    box-shadow:
+      0 32px 56px -8px rgba(30, 58, 138, 0.42),
+      0 0 28px 4px rgba(59, 130, 246, 0.15);
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 40%;
+  }
+  50% {
+    background-position: 100% 60%;
+  }
+  100% {
+    background-position: 0% 40%;
+  }
+}
+
+@keyframes orbDriftA {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-6%, 8%) scale(1.08);
+  }
+}
+
+@keyframes orbDriftB {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(8%, -5%) scale(1.05);
+  }
+}
+
+@keyframes orbDriftC {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(-4%, -6%) scale(1.06);
+  }
+  66% {
+    transform: translate(5%, 4%) scale(0.98);
+  }
+}
+
+@keyframes meshDrift {
+  0% {
+    opacity: 0.45;
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    opacity: 0.65;
+    transform: translate3d(-1.5%, 1%, 0);
+  }
+  100% {
+    opacity: 0.45;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes logoReveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes logoFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes logoGlow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 14px rgba(245, 158, 11, 0.42)) drop-shadow(0 0 28px rgba(148, 163, 184, 0.22));
+  }
+  50% {
+    filter: drop-shadow(0 0 22px rgba(251, 191, 36, 0.55)) drop-shadow(0 0 40px rgba(226, 232, 240, 0.28));
+  }
+}
+
+.pageBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.pageBackdropBase {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 85% 65% at 70% 20%, rgba(67, 56, 202, 0.22) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 15% 80%, rgba(245, 158, 11, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 45% at 90% 75%, rgba(59, 130, 246, 0.14) 0%, transparent 45%),
+    linear-gradient(145deg, #020617 0%, #0b1220 28%, #111827 52%, #0f172a 78%, #020617 100%);
+  background-size: 120% 120%;
+  animation: gradientShift 26s ease-in-out infinite;
+}
+
+.pageBackdropOrbs {
+  position: absolute;
+  inset: 0;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(72px);
+}
+
+.orbGold {
+  width: min(52vw, 520px);
+  height: min(52vw, 520px);
+  right: -12%;
+  top: -8%;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.42) 0%, rgba(217, 119, 6, 0.12) 45%, transparent 68%);
+  animation: orbDriftA 22s ease-in-out infinite;
+}
+
+.orbSilver {
+  width: min(48vw, 480px);
+  height: min(48vw, 480px);
+  left: -18%;
+  bottom: -10%;
+  background: radial-gradient(circle, rgba(148, 163, 184, 0.35) 0%, rgba(71, 85, 105, 0.12) 50%, transparent 70%);
+  animation: orbDriftB 26s ease-in-out infinite;
+}
+
+.orbViolet {
+  width: min(42vw, 420px);
+  height: min(42vw, 420px);
+  left: 35%;
+  top: 40%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.22) 0%, rgba(79, 70, 229, 0.08) 55%, transparent 72%);
+  animation: orbDriftC 30s ease-in-out infinite;
+}
+
+.pageBackdropMesh {
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 45%, black 15%, transparent 72%);
+  animation: meshDrift 18s ease-in-out infinite;
+}
+
+.pageBackdropVignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 110% 90% at 50% 48%, transparent 0%, rgba(2, 6, 23, 0.55) 85%, rgba(2, 6, 23, 0.92) 100%);
+}
+
+.pageBackdropSheen {
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.03) 48%,
+    rgba(253, 224, 71, 0.04) 52%,
+    transparent 65%
+  );
+  animation: meshDrift 24s ease-in-out infinite reverse;
+}
+
+.brandLogoShellWelcome {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem;
+  margin-bottom: 0.25rem;
+  border-radius: 1.35rem;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  animation: logoReveal 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.brandLogoImgWelcome {
+  display: block;
+  width: 4.75rem;
+  height: 4.75rem;
+  object-fit: contain;
+  border-radius: 1rem;
+  animation:
+    logoFloat 5.5s ease-in-out 0.85s infinite,
+    logoGlow 4s ease-in-out 0.85s infinite;
+}
+
+.brandLogoShellForm {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  padding: 0.45rem;
+  width: fit-content;
+  border-radius: 1.15rem;
+  background: linear-gradient(165deg, rgba(15, 23, 42, 0.96) 0%, rgba(30, 41, 59, 0.92) 100%);
+  box-shadow:
+    0 12px 36px rgba(15, 23, 42, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+  animation: logoReveal 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+.brandLogoShellForm::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.45), rgba(148, 163, 184, 0.5), rgba(245, 158, 11, 0.35));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.brandLogoImgForm {
+  display: block;
+  width: 3.5rem;
+  height: 3.5rem;
+  object-fit: contain;
+  border-radius: 0.75rem;
+  animation:
+    logoFloat 5.25s ease-in-out 0.9s infinite,
+    logoGlow 4.2s ease-in-out 0.9s infinite;
+}
+
+.outerCard {
+  position: relative;
+  isolation: isolate;
+  animation:
+    cardReveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) both,
+    floatGlow 9s ease-in-out 0.95s infinite;
+}
+
+.welcomePanel {
+  background: linear-gradient(155deg, #0f172a 0%, #1e3a8a 36%, #312e81 68%, #0f172a 100%);
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(2px);
+}
+
+.blob1 {
+  left: -18%;
+  top: -12%;
+  width: min(72%, 280px);
+  height: min(72%, 280px);
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.55) 0%, rgba(59, 130, 246, 0.15) 62%, transparent 72%);
+  animation: blobA 18s ease-in-out infinite;
+}
+
+.blob2 {
+  right: -22%;
+  bottom: 8%;
+  width: min(85%, 320px);
+  height: min(85%, 320px);
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.45) 0%, transparent 65%);
+  animation: blobB 22s ease-in-out infinite;
+}
+
+.blob3 {
+  left: 12%;
+  bottom: -8%;
+  width: min(55%, 200px);
+  height: min(55%, 200px);
+  background: radial-gradient(circle, rgba(147, 197, 253, 0.35) 0%, transparent 70%);
+  animation: blobC 14s ease-in-out infinite;
+}
+
+.blob4 {
+  right: 8%;
+  top: 22%;
+  width: min(40%, 140px);
+  height: min(40%, 140px);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, transparent 68%);
+  animation: blobA 12s ease-in-out infinite reverse;
+  animation-delay: -3s;
+}
+
+.staggerWelcome > * {
+  animation: fadeUp 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.staggerWelcome > *:nth-child(1) {
+  animation-delay: 0.12s;
+}
+.staggerWelcome > *:nth-child(2) {
+  animation-delay: 0.24s;
+}
+.staggerWelcome > *:nth-child(3) {
+  animation-delay: 0.36s;
+}
+
+.formColumn {
+  background: linear-gradient(168deg, #1e293b 0%, #0f172a 48%, #020617 100%);
+}
+
+.formCard {
+  position: relative;
+  animation: formReveal 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+}
+
+.formCard::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.35), rgba(147, 197, 253, 0.2), rgba(255, 255, 255, 0.6));
+  opacity: 0.55;
+  z-index: -1;
+  animation: borderGlow 6s ease-in-out infinite;
+}
+
+.staggerForm > * {
+  animation: fadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.staggerForm > *:nth-child(1) {
+  animation-delay: 0.38s;
+}
+.staggerForm > *:nth-child(2) {
+  animation-delay: 0.48s;
+}
+.staggerForm > *:nth-child(3) {
+  animation-delay: 0.58s;
+}
+
+.inputLine {
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.2s ease;
+}
+
+.inputLine:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.65);
+  box-shadow:
+    0 0 0 4px rgba(59, 130, 246, 0.12),
+    0 10px 28px rgba(30, 58, 138, 0.08);
+}
+
+.inputWrap:focus-within {
+  transform: translateY(-1px);
+}
+
+.btnSignIn {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(105deg, #2563eb 0%, #1d4ed8 45%, #3b82f6 100%);
+  background-size: 200% auto;
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease,
+    filter 0.2s ease;
+}
+
+.btnSignIn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+  transform: translateX(-100%);
+  animation: shimmerBtn 3.5s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+.btnSignIn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 14px 36px rgba(37, 99, 235, 0.45);
+  filter: brightness(1.05);
+}
+
+.btnSignIn:active:not(:disabled) {
+  transform: translateY(0) scale(0.99);
+}
+
+.loader {
+  display: inline-block;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spinLoader 0.65s linear infinite;
+  vertical-align: middle;
+  margin-right: 0.45rem;
+}
+
+.linkBlue {
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.linkBlue:hover {
+  color: #1d4ed8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pageBackdropBase,
+  .orbGold,
+  .orbSilver,
+  .orbViolet,
+  .pageBackdropMesh,
+  .pageBackdropSheen,
+  .brandLogoImgWelcome,
+  .brandLogoImgForm,
+  .brandLogoShellWelcome,
+  .brandLogoShellForm {
+    animation: none !important;
+  }
+
+  .brandLogoImgWelcome,
+  .brandLogoImgForm {
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.25));
+  }
+
+  .outerCard,
+  .blob1,
+  .blob2,
+  .blob3,
+  .blob4,
+  .staggerWelcome > *,
+  .formCard,
+  .formCard::before,
+  .staggerForm > *,
+  .btnSignIn::after {
+    animation: none !important;
+  }
+
+  .btnSignIn:hover:not(:disabled) {
+    transform: none;
+    filter: none;
+  }
+
+  .loader {
+    animation: none;
+    border-top-color: transparent;
+  }
+}

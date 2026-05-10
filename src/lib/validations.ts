@@ -12,6 +12,11 @@ export const adminUserSchema = z.object({
   status: z.enum(["Active", "Inactive"]).default("Active"),
 });
 
+/** Super-admin password reset for another admin user */
+export const adminPasswordResetSchema = z.object({
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
 export const vendorSchema = z.object({
   name: z.string().min(2),
   companyName: z.string().optional(),

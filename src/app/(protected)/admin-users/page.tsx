@@ -49,6 +49,10 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [form, setForm] = useState(emptyForm);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [resetTarget, setResetTarget] = useState<AdminUser | null>(null);
+  const [resetPassword, setResetPassword] = useState("");
+  const [resetPasswordConfirm, setResetPasswordConfirm] = useState("");
+  const [resetSubmitting, setResetSubmitting] = useState(false);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -102,6 +106,42 @@ export default function AdminUsersPage() {
     load();
   };
 
+  const closeResetModal = () => {
+    setResetTarget(null);
+    setResetPassword("");
+    setResetPasswordConfirm("");
+  };
+
+  const submitPasswordReset = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!resetTarget) return;
+    if (resetPassword.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+    if (resetPassword !== resetPasswordConfirm) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    setResetSubmitting(true);
+    try {
+      const response = await fetch(`/api/admin-users/${resetTarget._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: resetPassword }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        toast.error(typeof payload.message === "string" ? payload.message : "Failed to reset password");
+        return;
+      }
+      toast.success(`Password updated for ${resetTarget.name}`);
+      closeResetModal();
+    } finally {
+      setResetSubmitting(false);
+    }
+  };
+
   return (
     <section className="space-y-5">
       <div className="relative overflow-hidden rounded-3xl border border-white/50 bg-gradient-to-r from-violet-700 via-fuchsia-600 to-indigo-700 p-6 text-white shadow-xl">
@@ -127,7 +167,9 @@ export default function AdminUsersPage() {
             <div className="text-left text-sm">
               <p className="font-semibold">Your access</p>
               <p className="text-xs text-violet-100">
-                {isSuperAdmin ? "Full provisioning — you can create and remove users." : "View-only — contact a super admin for changes."}
+                {isSuperAdmin
+                  ? "Full provisioning — create users, reset passwords, and remove accounts."
+                  : "View-only — contact a super admin for changes."}
               </p>
             </div>
           </div>
@@ -223,7 +265,8 @@ export default function AdminUsersPage() {
         <div className="rounded-2xl border border-amber-200/80 bg-gradient-to-r from-amber-50 to-orange-50/80 p-4 text-sm text-amber-950 shadow-sm">
           <p className="font-medium text-amber-900">View-only mode</p>
           <p className="mt-1 text-amber-800/90">
-            Creating or deleting admin users requires the Super Admin role. You can still review the roster below.
+            Creating or deleting admin users, or resetting passwords, requires the Super Admin role. You can still review
+            the roster below.
           </p>
         </div>
       )}
@@ -273,13 +316,23 @@ export default function AdminUsersPage() {
               label: "Actions",
               render: (row) =>
                 isSuperAdmin ? (
-                  <button
-                    type="button"
-                    className="rounded-lg border border-rose-200 bg-rose-50/80 px-2.5 py-1 text-xs font-medium text-rose-800 transition hover:bg-rose-100"
-                    onClick={() => setDeleteId(row._id)}
-                  >
-                    Delete
-                  </button>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-1 rounded-lg border border-violet-200 bg-violet-50/90 px-2.5 py-1 text-xs font-medium text-violet-900 transition hover:bg-violet-100"
+                      onClick={() => setResetTarget(row)}
+                    >
+                      <KeyRound className="h-3.5 w-3.5 shrink-0" />
+                      Reset password
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-lg border border-rose-200 bg-rose-50/80 px-2.5 py-1 text-xs font-medium text-rose-800 transition hover:bg-rose-100"
+                      onClick={() => setDeleteId(row._id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 ) : (
                   <span className="text-xs text-slate-400">—</span>
                 ),
@@ -295,6 +348,61 @@ export default function AdminUsersPage() {
         onCancel={() => setDeleteId(null)}
         onConfirm={remove}
       />
+
+      {resetTarget ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45 p-4 backdrop-blur-sm">
+          <form
+            onSubmit={submitPasswordReset}
+            className="advanced-panel w-full max-w-md space-y-4 p-5 shadow-xl"
+            aria-labelledby="reset-password-title"
+          >
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white shadow-md">
+                <KeyRound className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 id="reset-password-title" className="text-lg font-semibold text-slate-800">
+                  Reset password
+                </h3>
+                <p className="mt-1 text-sm text-slate-600">
+                  Set a new password for <span className="font-medium text-slate-800">{resetTarget.name}</span> (
+                  {resetTarget.email}). Share it through a secure channel.
+                </p>
+              </div>
+            </div>
+            <FormInput
+              label="New password"
+              value={resetPassword}
+              onChange={(e) => setResetPassword(e.target.value)}
+              type="password"
+              autoComplete="new-password"
+              required
+              minLength={8}
+            />
+            <FormInput
+              label="Confirm password"
+              value={resetPasswordConfirm}
+              onChange={(e) => setResetPasswordConfirm(e.target.value)}
+              type="password"
+              autoComplete="new-password"
+              required
+              minLength={8}
+            />
+            <div className="flex justify-end gap-3 pt-1">
+              <button
+                type="button"
+                onClick={closeResetModal}
+                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm transition hover:border-slate-400 hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <FormPrimaryButton type="submit" disabled={resetSubmitting} className="justify-center px-4 py-2 text-sm">
+                {resetSubmitting ? "Saving…" : "Update password"}
+              </FormPrimaryButton>
+            </div>
+          </form>
+        </div>
+      ) : null}
     </section>
   );
 }

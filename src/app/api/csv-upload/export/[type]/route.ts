@@ -6,6 +6,7 @@ import Firewall from "@/models/Firewall";
 import Server from "@/models/Server";
 import Subscription from "@/models/Subscription";
 import Vendor from "@/models/Vendor";
+import Isp from "@/models/Isp";
 import { makeCsvResponse } from "@/utils/exportCsv";
 
 type Params = { params: Promise<{ type: string }> };
@@ -127,6 +128,21 @@ export async function GET(_: Request, { params }: Params) {
         branchName: row.branchName,
         lanIp: row.lanIp,
         extNumber: row.extNumber,
+      })),
+    );
+  }
+
+  if (type === "isp") {
+    const rows = await Isp.find().lean();
+    return makeCsvResponse(
+      "isp.csv",
+      rows.map((row) => ({
+        shopName: row.shopName,
+        fiveGBackupEnabled: row.fiveGBackupEnabled,
+        accountNumber: row.accountNumber,
+        serviceProviderName: row.serviceProviderName,
+        region: row.region,
+        telephoneNumber: row.telephoneNumber,
       })),
     );
   }

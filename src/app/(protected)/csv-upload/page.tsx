@@ -15,10 +15,19 @@ type LogRecord = {
   createdAt: string;
 };
 
+const IMPORT_TYPES = [
+  { id: "subscriptions" as const, label: "Subscriptions" },
+  { id: "vendors" as const, label: "Vendors" },
+  { id: "servers" as const, label: "Servers" },
+  { id: "firewalls" as const, label: "Firewalls" },
+  { id: "avaya-telephones" as const, label: "Avaya phones" },
+  { id: "isp" as const, label: "ISP" },
+];
+
+type CsvImportTabId = (typeof IMPORT_TYPES)[number]["id"];
+
 export default function CsvUploadPage() {
-  const [tab, setTab] = useState<
-    "subscriptions" | "vendors" | "servers" | "firewalls" | "avaya-telephones"
-  >("subscriptions");
+  const [tab, setTab] = useState<CsvImportTabId>("subscriptions");
   const [logs, setLogs] = useState<LogRecord[]>([]);
 
   const refreshLogs = useCallback(() => {
@@ -80,20 +89,21 @@ export default function CsvUploadPage() {
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-        <div className="flex flex-wrap gap-2">
-          {(["subscriptions", "vendors", "servers", "firewalls", "avaya-telephones"] as const).map((item) => (
-            <button
-              key={item}
-              onClick={() => setTab(item)}
-              className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
-                tab === item
-                  ? "bg-gradient-to-r from-slate-900 to-slate-700 text-white shadow-sm"
-                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-              }`}
-            >
-              {item}
-            </button>
-          ))}
+        <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:thin] md:flex-wrap md:overflow-visible [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300">
+          {IMPORT_TYPES.map(({ id, label }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setTab(id)}
+                className={`shrink-0 rounded-xl px-4 py-2 text-sm font-medium whitespace-nowrap transition ${
+                  tab === id
+                    ? "bg-gradient-to-r from-slate-900 to-slate-700 text-white shadow-sm"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
         </div>
       </div>
 

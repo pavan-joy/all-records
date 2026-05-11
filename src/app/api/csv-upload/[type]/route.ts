@@ -4,6 +4,7 @@ import { requireWriteAccess } from "@/lib/apiAuth";
 import {
   avayaTelephoneSchema,
   firewallSchema,
+  ispSchema,
   serverSchema,
   subscriptionSchema,
   vendorSchema,
@@ -14,6 +15,7 @@ import Firewall from "@/models/Firewall";
 import Server from "@/models/Server";
 import Subscription from "@/models/Subscription";
 import Vendor from "@/models/Vendor";
+import Isp from "@/models/Isp";
 
 type Params = { params: Promise<{ type: string }> };
 
@@ -90,6 +92,14 @@ export async function POST(request: Request, { params }: Params) {
           { ...parsed.data, updatedBy: auth.session?.user.id, createdBy: auth.session?.user.id },
           { upsert: true, new: true, runValidators: true },
         );
+      } else if (type === "isp") {
+        const parsed = ispSchema.safeParse(row);
+        if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? "Invalid row");
+        await Isp.findOneAndUpdate(
+          { shopName: parsed.data.shopName },
+          { ...parsed.data, updatedBy: auth.session?.user.id, createdBy: auth.session?.user.id },
+          { upsert: true, new: true, runValidators: true },
+        );
       } else {
         return NextResponse.json({ message: "Unsupported CSV type" }, { status: 400 });
       }
@@ -113,7 +123,9 @@ export async function POST(request: Request, { params }: Params) {
               ? "FIREWALL"
               : type === "avaya-telephones"
                 ? "AVAYA_TELEPHONE"
-                : "VENDOR",
+                : type === "isp"
+                  ? "ISP"
+                  : "VENDOR",
     fileName,
     uploadedBy: auth.session?.user.id,
     totalRows: rows.length,

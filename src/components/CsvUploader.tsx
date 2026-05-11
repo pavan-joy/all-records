@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import FormPrimaryButton from "@/components/FormPrimaryButton";
 
 type Props = {
-  type: "subscriptions" | "vendors" | "servers" | "firewalls" | "avaya-telephones";
+  type: "subscriptions" | "vendors" | "servers" | "firewalls" | "avaya-telephones" | "isp";
   onImportComplete?: () => void;
 };
 
@@ -32,6 +32,7 @@ export default function CsvUploader({ type, onImportComplete }: Props) {
   const clearImportBanner = useCallback(() => setImportDone(null), []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setImportDone(null);
   }, [type]);
 

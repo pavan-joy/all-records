@@ -13,6 +13,7 @@ const templates: Record<string, string> = {
   firewalls:
     "county,branch,wanIp,lanIp,serialNumber,expiryDate,firmwareVersion,vendor,backup,lastCheckedDate",
   "avaya-telephones": "county,branchName,lanIp,extNumber",
+  isp: "shopName,fiveGBackupEnabled,accountNumber,serviceProviderName,region,telephoneNumber",
 };
 
 export async function GET(_: Request, { params }: Params) {

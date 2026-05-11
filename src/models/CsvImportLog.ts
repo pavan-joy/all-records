@@ -1,7 +1,7 @@
 import { Model, Schema, Types, models, model } from "mongoose";
 
 export interface ICsvImportLog {
-  type: "SUBSCRIPTION" | "VENDOR" | "SERVER" | "FIREWALL" | "AVAYA_TELEPHONE";
+  type: "SUBSCRIPTION" | "VENDOR" | "SERVER" | "FIREWALL" | "AVAYA_TELEPHONE" | "ISP";
   fileName: string;
   uploadedBy: Types.ObjectId;
   totalRows: number;
@@ -16,7 +16,7 @@ const csvImportLogSchema = new Schema<ICsvImportLog>(
   {
     type: {
       type: String,
-      enum: ["SUBSCRIPTION", "VENDOR", "SERVER", "FIREWALL", "AVAYA_TELEPHONE"],
+      enum: ["SUBSCRIPTION", "VENDOR", "SERVER", "FIREWALL", "AVAYA_TELEPHONE", "ISP"],
       required: true,
     },
     fileName: { type: String, required: true, trim: true },

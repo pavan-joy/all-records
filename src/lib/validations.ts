@@ -173,4 +173,10 @@ export const ispSchema = z.object({
   telephoneNumber: z.string().optional(),
 });
 
-export type CsvEntityType = "subscription" | "vendor" | "server" | "firewall" | "avayaTelephone";
+export type CsvEntityType =
+  | "subscription"
+  | "vendor"
+  | "server"
+  | "firewall"
+  | "avayaTelephone"
+  | "isp";
